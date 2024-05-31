@@ -124,3 +124,20 @@ li button:hover {
   color: red;
   margin-bottom: 20px;
 }
+
+.task-count-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.task-count {
+  font-size: 1.2em;
+  color: #555;
+  background: #f0f0f0;
+  padding: 10px 15px;
+  border-radius: 25px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+}
