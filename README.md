@@ -14,7 +14,7 @@ A simple and intuitive To-Do List application built with React. This app allows 
 
 ## Demo
 
-[Live Demo](#)(https://todo-list-celebal.vercel.app/))
+[Live Demo](https://todo-list-celebal.vercel.app/)
 
 ## Installation
 
