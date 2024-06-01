@@ -8,8 +8,9 @@ const ToDoList = () => {
   const [filter, setFilter] = useState('all');
   const [sort, setSort] = useState('date');
   const [error, setError] = useState('');
+  const [editTaskId, setEditTaskId] = useState(null);
+  const [editTaskText, setEditTaskText] = useState('');
 
-  // Load tasks from localStorage when component mounts
   useEffect(() => {
     const savedTasks = JSON.parse(localStorage.getItem('tasks'));
     if (savedTasks) {
@@ -17,12 +18,10 @@ const ToDoList = () => {
     }
   }, []);
 
-  // Save tasks to localStorage whenever tasks change
   useEffect(() => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Add a new task after validating the input
   const addTask = () => {
     if (task.trim()) {
       setTasks([...tasks, { id: uuidv4(), text: task, completed: false, date: new Date() }]);
@@ -33,24 +32,20 @@ const ToDoList = () => {
     }
   };
 
-  // Remove a task by its id
   const removeTask = (id) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
-  // Toggle the completion status of a task
   const toggleTaskCompletion = (id) => {
     setTasks(tasks.map(task => 
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
-  // Handle sort change
   const handleSortChange = (e) => {
     setSort(e.target.value);
   };
 
-  // Sort tasks by date or alphabetically
   const sortedTasks = [...tasks].sort((a, b) => {
     if (sort === 'date') {
       return new Date(a.date) - new Date(b.date);
@@ -61,12 +56,36 @@ const ToDoList = () => {
     return 0;
   });
 
-  // Filter tasks based on the selected filter
   const filteredTasks = sortedTasks.filter(task => {
     if (filter === 'completed') return task.completed;
     if (filter === 'incomplete') return !task.completed;
     return true;
   });
+
+  const incompleteTaskCount = tasks.filter(task => !task.completed).length;
+  const totalTaskCount = tasks.length;
+
+  const startEditing = (id, text) => {
+    setEditTaskId(id);
+    setEditTaskText(text);
+  };
+
+  const handleEditChange = (e) => {
+    setEditTaskText(e.target.value);
+  };
+
+  const saveTask = (id) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, text: editTaskText } : task
+    ));
+    setEditTaskId(null);
+    setEditTaskText('');
+  };
+
+  const cancelEditing = () => {
+    setEditTaskId(null);
+    setEditTaskText('');
+  };
 
   return (
     <div className="todo-list">
@@ -95,11 +114,34 @@ const ToDoList = () => {
           </select>
         </div>
       </div>
+      <div className="task-count-container">
+        <div className="task-count">
+          Total tasks: {totalTaskCount}
+        </div>
+        <div className="task-count">
+          Incomplete tasks: {incompleteTaskCount}
+        </div>
+      </div>
       <ul>
         {filteredTasks.map((task) => (
           <li key={task.id} className={task.completed ? 'completed' : ''}>
-            <span onClick={() => toggleTaskCompletion(task.id)}>{task.text}</span>
-            <button onClick={() => removeTask(task.id)}>Remove</button>
+            {editTaskId === task.id ? (
+              <>
+                <input 
+                  type="text" 
+                  value={editTaskText} 
+                  onChange={handleEditChange}
+                />
+                <button onClick={() => saveTask(task.id)}>Save</button>
+                <button onClick={cancelEditing}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <span onClick={() => toggleTaskCompletion(task.id)}>{task.text}</span>
+                <button onClick={() => startEditing(task.id, task.text)}>Edit</button>
+                <button onClick={() => removeTask(task.id)}>Remove</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
